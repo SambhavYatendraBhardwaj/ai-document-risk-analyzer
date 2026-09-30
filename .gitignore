@@ -1,0 +1,16 @@
+# Sensitive keys
+.env
+
+# Virtual environment
+myenv/
+venv/
+__pycache__/
+*.pyc
+
+# Local databases & uploads
+chroma_db/
+temp_uploads/
+
+# OS files
+.DS_Store
+Thumbs.db
