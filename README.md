@@ -1,119 +1,106 @@
-# 🛡️ AI Document Risk Analyzer
+🛡️ AI Document Risk Analyzer
 
-A production-grade Retrieval-Augmented Generation (RAG) system engineered to audit contractual, legal, and operational documents. The system systematically extracts categorized contractual hazards (Liability, IP Ownership, Penalties, Compliance) into strictly validated schemas and runs an automated Groundedness verification layer to eliminate LLM hallucinations.
+An end-to-end Retrieval-Augmented Generation (RAG) system that audits contractual, legal, and operational documents. It extracts categorized risks (Liability, IP Ownership, Penalties, Compliance) into strictly validated schemas, then runs a groundedness check that verifies each extracted piece of evidence actually exists in the source document, to catch hallucinated claims.
 
----
+<!-- ADD: screenshot or GIF of the Streamlit dashboard here --> <!-- ADD: [Live demo](link) if deployed on Streamlit Cloud / Hugging Face Spaces -->
+Why this project
 
-## 🚀 Key Features
+LLMs can sound confident while inventing clauses that don't exist. In contract review that is unacceptable, so every risk the model reports is checked against the original text before it is shown.
 
-- **Chunking & Ingestion Engine:** Parses digital PDFs using PyMuPDF and splits unstructured legal text with recursive character splitting to preserve contextual semantic boundaries.
-- **Local Vector Indexing:** Indexes embedded chunks using ChromaDB and Google Generative AI embeddings for targeted similarity retrieval across legal risk query anchors.
-- **Strictly Typed Structured Extraction:** Utilizes Google Gemini Flash coupled with Pydantic v2 schemas (`DocumentRiskReport`) to enforce consistent typing, risk categorization, severity ratings, and actionable mitigations.
-- **Automated Groundedness & Evaluation Pipeline:** Implements a post-generation verification engine that evaluates extracted verbatim evidence against raw document context via normalized substring matching to eliminate model fabrications.
-- **Dual Presentation Layer:** 
-  - **FastAPI Backend:** Production-grade REST API supporting multipart file uploads, Swagger UI (`/docs`), and automatic cleanup routines for temporary files.
-  - **Streamlit Dashboard:** Visual UI featuring KPI metrics, dynamic risk severity badges, and interactive collapsible risk cards.
+Key Features
+Ingestion: PyMuPDF loads digital PDFs; recursive character splitting preserves semantic boundaries.
+Vector retrieval: Chunks are embedded with Google Generative AI embeddings and stored in ChromaDB; targeted risk-category queries retrieve the relevant passages.
+Structured extraction: Gemini Flash + Pydantic v2 (DocumentRiskReport) enforce typed output: category, severity, evidence, and suggested mitigation.
+Groundedness verification: Extracted verbatim evidence is matched against the raw document text (normalized substring matching); unsupported claims are flagged.
+Two interfaces: FastAPI REST backend (multipart upload, Swagger UI at /docs) and a Streamlit dashboard (KPI metrics, severity badges, expandable risk cards).
+Results
 
----
+Fill these with your real numbers before publishing. Do not leave placeholders.
 
-## 🏗️ Architecture & Pipeline Flow
-
-```text
+Metric	Value
+Documents tested	X
+Risks extracted	X
+Grounded (evidence verified in source)	X%
+Precision / Recall (vs. manual labels)	X / X
+Architecture
 User PDF
    │
    ▼
-[ PyMuPDF Document Loader ] ──► [ Recursive Character Text Splitter ]
-                                           │
-                                           ▼
-                                [ Google GenAI Embeddings ]
-                                           │
-                                           ▼
-                                  [ ChromaDB Store ]
-                                           │
-                                           ▼
-                             [ Targeted Legal Anchors Retrieval ]
-                                           │
-                                           ▼
-                             [ Gemini Flash + Pydantic v2 ]
-                                           │
-                                           ▼
-                           [ Groundedness Verification Check ]
-                                           │
-                  ┌────────────────────────┴────────────────────────┐ 
-[ FastAPI REST Endpoint ]                           [ Streamlit Frontend ]
+[ PyMuPDF Loader ] ──► [ Recursive Text Splitter ]
+                                │
+                                ▼
+                     [ Google GenAI Embeddings ]
+                                │
+                                ▼
+                        [ ChromaDB Store ]
+                                │
+                                ▼
+                  [ Targeted Risk-Query Retrieval ]
+                                │
+                                ▼
+                    [ Gemini Flash + Pydantic v2 ]
+                                │
+                                ▼
+                 [ Groundedness Verification Check ]
+                                │
+                 ┌──────────────┴──────────────┐
+                 ▼                             ▼
+      [ FastAPI REST Endpoint ]      [ Streamlit Frontend ]
 Tech Stack
-LLM & Reasoning: Google Gemini Flash (ChatGoogleGenerativeAI)
-
-Orchestration & RAG: LangChain, ChromaDB
-
-Validation: Pydantic v2
-
-Backend API: FastAPI, Uvicorn, Python-Multipart
-
-Frontend UI: Streamlit, Requests
-
-Document Processing: PyMuPDF, LangChain Community
-
-📂 Project Structure
-Plaintext
+Layer	Tools
+LLM	Google Gemini Flash (ChatGoogleGenerativeAI)
+RAG / Orchestration	LangChain, ChromaDB
+Validation	Pydantic v2
+Backend	FastAPI, Uvicorn, python-multipart
+Frontend	Streamlit, Requests
+Document processing	PyMuPDF, LangChain Community
+Project Structure
 ├── src/
-│   ├── parser.py          # PDF ingestion and chunking logic
-│   ├── schemas.py         # Pydantic v2 models for structured risk outputs
-│   ├── vectorstore.py     # ChromaDB embedding & retrieval setup
-│   ├── risk_analyser.py   # Gemini reasoning & structured extraction
-│   ├── evaluator.py       # Groundedness & Precision/Recall evaluation pipeline
-│   ├── app.py             # FastAPI backend server
-│   └── frontend.py        # Streamlit user interface
-├── requirements.txt       # Project dependencies
-├── .env                   # Environment variables (API keys)
-├── .gitignore             # Excluded files and folders
-└── README.md              # Project documentation
-⚙️ Installation & Setup
-Clone the repository:
-
-Bash
-git clone [https://github.com/SambhavYatendraBhardwaj/ai-document-risk-analyzer.git](https://github.com/SambhavYatendraBhardwaj/ai-document-risk-analyzer.git)
+│   ├── parser.py          # PDF ingestion and chunking
+│   ├── schemas.py         # Pydantic v2 models for structured risk output
+│   ├── vectorstore.py     # ChromaDB embedding and retrieval
+│   ├── risk_analyser.py   # Gemini reasoning and structured extraction
+│   ├── evaluator.py       # Groundedness and precision/recall evaluation
+│   ├── app.py             # FastAPI backend
+│   └── frontend.py        # Streamlit UI
+├── requirements.txt
+├── .gitignore
+└── README.md
+Setup
+bash
+git clone https://github.com/SambhavYatendraBhardwaj/ai-document-risk-analyzer.git
 cd ai-document-risk-analyzer
-Create and activate a virtual environment:
 
-Bash
 python -m venv myenv
-# Windows (PowerShell):
-.\myenv\Scripts\Activate.ps1
-# Linux / macOS:
-source myenv/bin/activate
-Install dependencies:
+# Windows (PowerShell): .\myenv\Scripts\Activate.ps1
+# Linux / macOS:        source myenv/bin/activate
 
-Bash
 pip install -r requirements.txt
-Configure environment variables:
-Create a .env file in the root directory:
 
-Code snippet
+Create a .env file in the project root (never commit it):
+
 GOOGLE_API_KEY=your_gemini_api_key_here
-🖥️ Running the Application
-1. Launch FastAPI Backend
-Bash
+Run
+
+1. Start the API
+
+bash
 python -m uvicorn src.app:app --reload
-Interactive Swagger documentation will be accessible at: http://127.0.0.1:8000/docs
 
-2. Launch Streamlit Frontend
-In a separate terminal (with virtual environment activated):
+Swagger docs: http://127.0.0.1:8000/docs
 
-Bash
+2. Start the dashboard (separate terminal, venv active)
+
+bash
 streamlit run src/frontend.py
-Streamlit web dashboard will open at: http://localhost:8501
 
+Dashboard: http://localhost:8501
 
----
-
-1. Apne GitHub repository page par jao[cite: 5].
-2. Wahan **"Add a README"** green button par click karo[cite: 5].
-3. Upar ka pura code paste karo aur neeche **"Commit changes"** par click kar do.
-
-<FollowUp label="Kya README add ho gayi aur ab resume ke points banayein?" query="README
-
-
-────────────────────────┐
-                  ▼                                                 ▼
-      [ FastAPI REST Endpoint ]                           [ Streamlit Frontend ]
+Limitations
+Supports digital (text-based) PDFs only; scanned documents need OCR.
+Groundedness uses substring matching, so paraphrased evidence may be flagged as unverified.
+Not legal advice; output should be reviewed by a human.
+Roadmap
+OCR support for scanned contracts
+Semantic (embedding-based) groundedness scoring
+Automated test suite and CI
